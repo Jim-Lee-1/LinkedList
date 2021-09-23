@@ -1,0 +1,153 @@
+/*
+程序名称：学生成绩管理系统
+功能要求：录入学生成绩
+		  修改学生成绩
+		  统计每个学生的总分及平均分并能根据学生的平均成绩排序
+		  查询学生成绩
+		  输出学生成绩单
+		  能够保存学生成绩，实现文件的读写
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#define NAME_LEN 10
+#define FILE_NAME "学生成绩.txt"
+
+typedef struct {
+	char name[NAME_LEN + 1];//姓名
+	int number;				//学号
+	int chinese;			//语文
+	int math;				//数学
+	int english;			//英语
+} student;					//用于存储单个学生的信息
+
+typedef struct node {
+	student stu;		//数据域，存储学生信息
+	struct node *next;	//指针域，指向下一个节点
+} studentNode;			//学生节点
+
+typedef struct {
+	studentNode *head;	//头指针
+	studentNode *tail;	//尾指针
+	int count;			//学生节点总数
+} studentList;			//学生链表
+//此链表是有头节点的链表，L->head永远不为NULL
+//链表为空：L->head->next == NULL
+
+void initialize(studentList *L);
+void enter(studentList *L);
+void display(studentList *L);
+void write(studentList *L);
+void read(studentList *L);
+
+int main() {
+	printf("		**************学生成绩管理系统**************\n");
+	printf("		*  1.录入新的学生成绩                      *\n");
+	printf("		*  2.按学号修改学生成绩                    *\n");
+	printf("		*  3.按学号查询学生成绩                    *\n");
+	printf("		*  4.输出全部学生的成绩                    *\n");
+	printf("		*  5.按平均分输出学生成绩                  *\n");
+	printf("		*  6.退出学生成绩管理系统                  *\n");
+	printf("		********************************************\n");
+	printf("  	                                                \n");
+
+	studentList *L = (studentList *)malloc(sizeof(studentList));
+	return 0;
+}
+
+void initialize(studentList *L) {
+	//创建头节点
+	studentNode *s = (studentNode *)malloc(sizeof(studentNode));
+	s->next = NULL;
+	//创建链表
+	L->head = s;
+	L->tail = s;
+	L->count = 0;
+}
+
+void enter(studentList *L) {
+	//创建新节点
+	studentNode *s = (studentNode *)malloc(sizeof(studentNode));
+	//键入信息并存到新节点中
+	printf("请输入学生姓名：");
+	scanf("%s", s->stu.name);
+	printf("请输入学生学号：");
+	scanf("%d", &s->stu.number);
+	printf("请输入语文成绩：");
+	scanf("%d", &s->stu.chinese);
+	printf("请输入数学成绩：");
+	scanf("%d", &s->stu.math);
+	printf("请输入英语成绩：");
+	scanf("%d", &s->stu.english);
+	//将新节点插进链表头部（头插法）
+	if (L->head == L->tail) {
+		L->tail = s;
+	}
+	s->next = L->head->next;
+	L->head->next = s;
+	L->count++;
+}
+
+void display(studentList *L) {
+	printf("共有%d组学生数据：\n", L->count);
+	printf("姓名\t\t学号\t\t语文\t\t数学\t\t英语\n");
+	studentNode *p;
+	p = L->head;
+	while (p->next) {
+		p = p->next;
+		printf("%s", p->stu.name);
+		printf("\t\t%d", p->stu.number);
+		printf("\t\t%d", p->stu.chinese);
+		printf("\t\t%d", p->stu.math);
+		printf("\t\t%d", p->stu.english);
+		printf("\n");
+	}
+}
+
+void write(studentList *L) {
+	FILE *fp = fopen(FILE_NAME, "w");
+	if (fp == NULL) {
+		printf("文件%s打开失败\n", FILE_NAME);
+		exit(EXIT_FAILURE);
+	}
+
+	fprintf(fp, "%d\n", L->count);
+	studentNode *p;
+	p = L->head;
+	while (p->next) {
+		p = p->next;
+		fprintf(fp, "%s ", p->stu.name);
+		fprintf(fp, "%d ", p->stu.number);
+		fprintf(fp, "%d ", p->stu.chinese);
+		fprintf(fp, "%d ", p->stu.math);
+		fprintf(fp, "%d ", p->stu.english);
+		fprintf(fp, "\n");
+	}
+
+	fclose(fp);
+}
+
+void read(studentList *L) {
+	FILE *fp = fopen(FILE_NAME, "r");
+	if (fp == NULL) {
+		printf("文件%s打开失败\n", FILE_NAME);
+		exit(EXIT_FAILURE);
+	}
+
+	fscanf(fp, "%d", &L->count);
+	for (int i = 1; i <= L->count; i++) {
+		//创建新节点
+		studentNode *s = (studentNode *)malloc(sizeof(studentNode));
+		//读取数据
+		fscanf(fp, "%s ", s->stu.name);
+		fscanf(fp, "%d ", &s->stu.number);
+		fscanf(fp, "%d ", &s->stu.chinese);
+		fscanf(fp, "%d ", &s->stu.math);
+		fscanf(fp, "%d ", &s->stu.english);
+		//将新节点插进链表尾部（尾插法）
+		s->next = NULL;
+		L->tail->next = s;
+		L->tail = s;
+	}
+	fclose(fp);
+}
