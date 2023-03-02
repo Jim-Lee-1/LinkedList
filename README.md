@@ -6,3 +6,5 @@
 C
 ### 开发环境：
 Dev C++ 5.15
+### 文章链接
+[学生成绩管理系统（C语言链表）_Jim_Leeeee的博客-CSDN博客](http://t.csdn.cn/pVpJL)
